@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ValveKeyValue
 {
-    class KVArrayValue : KVValue, IEnumerable<KVValue>
+    public class KVArrayValue : KVValue, IEnumerable<KVValue>, ICollection<KVValue>, IList<KVValue>
     {
         public KVArrayValue()
         {
@@ -15,16 +15,26 @@ namespace ValveKeyValue
 
         public override KVValueType ValueType => KVValueType.Array;
 
-        /*
+        public int Count => children.Count;
+
+        public bool IsReadOnly => false;
+
         public override KVValue this[string key]
+        {
+            get { throw new NotSupportedException($"The indexer on a {nameof(KVArrayValue)} can only be used on integer keys, not strings."); }
+        }
+
+        public KVValue this[int key]
         {
             get
             {
-                Require.NotNull(key, nameof(key));
-                return Get(key)?.Value;
+                return children[key];
+            }
+            set
+            {
+                children[key] = value;
             }
         }
-        */
 
         public void Add(KVValue value)
         {
@@ -37,23 +47,6 @@ namespace ValveKeyValue
             Require.NotNull(values, nameof(values));
             children.AddRange(values);
         }
-
-        /*
-        public KVObject Get(string name)
-        {
-            Require.NotNull(name, nameof(name));
-            return children.FirstOrDefault(c => c.Name == name);
-        }
-
-        public void Set(string name, KVValue value)
-        {
-            Require.NotNull(name, nameof(name));
-            Require.NotNull(value, nameof(value));
-
-            children.RemoveAll(kv => kv.Name == name);
-            children.Add(new KVObject(name, value));
-        }
-        */
 
         #region IEnumerable<KVValue>
 
@@ -155,5 +148,39 @@ namespace ValveKeyValue
         #endregion
 
         public override string ToString() => "[Array]";
+
+        public void Clear() => children.Clear();
+
+        public bool Contains(KVValue item)
+        {
+            Require.NotNull(item, nameof(item));
+            return children.Contains(item);
+        }
+
+        public void CopyTo(KVValue[] array, int arrayIndex)
+        {
+            Require.NotNull(array, nameof(array));
+            children.CopyTo(array, arrayIndex);
+        }
+
+        public bool Remove(KVValue item)
+        {
+            Require.NotNull(item, nameof(item));
+            return children.Remove(item);
+        }
+
+        public int IndexOf(KVValue item)
+        {
+            Require.NotNull(item, nameof(item));
+            return children.IndexOf(item);
+        }
+
+        public void Insert(int index, KVValue item)
+        {
+            Require.NotNull(item, nameof(item));
+            children.Insert(index, item);
+        }
+
+        public void RemoveAt(int index) => children.RemoveAt(index);
     }
 }
